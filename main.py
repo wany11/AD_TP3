@@ -1,7 +1,7 @@
 # Importer les bibliothèques nécessaires
 import numpy as np
 import matplotlib.pyplot as plt
-from tensorflow import keras
+import keras
 from keras import layers
 from skimage.metrics import structural_similarity as ssim
 from sklearn.metrics import mean_squared_error as mse
@@ -11,12 +11,18 @@ from sklearn.metrics import mean_squared_error as mse
 (x_train, y_train), (x_test, y_test) = keras.datasets.fashion_mnist.load_data()
 
 # Normalisation des images
+#Cette normalisation va permettre d'améliorer la convergence de l’entraînement du modèle.
 x_train = x_train.astype('float32') / 255.
 x_test = x_test.astype('float32') / 255.
 
 # Vectorisation des images
-x_train = x_train.reshape((len(x_train), -1))  # (60000, 784)
-x_test = x_test.reshape((len(x_test), -1))    # (10000, 784)
+#Cette étape va simplifier leur manipulation dans les couches dense du modèle.
+x_train = x_train.reshape((len(x_train), -1))
+x_test = x_test.reshape((len(x_test), -1))
+
+
+print("x_train : ", x_train.shape)
+print("x_test : ", x_test.shape)
 
 # 2. Création d'un autoencodeur simple
 # Taille de l'espace latent
@@ -39,6 +45,9 @@ encoder = keras.Model(input_img, encoded)
 encoded_input = keras.Input(shape=(taille_code,))
 decoder_layer = autoencoder.layers[-1]
 decoder = keras.Model(encoded_input, decoder_layer(encoded_input))
+
+print("Autoencoder summary : ")
+autoencoder.summary()
 
 # Compiler le modèle
 autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
@@ -88,8 +97,8 @@ plt.show()
 
 # Calcul des MSE et SSIM
 mse_values = [mse(x_test[i], decoded_imgs[i]) for i in range(len(x_test))]
-ssim_values = [ssim(x_test[i].reshape(28, 28), decoded_imgs[i].reshape(28, 28)) for i in range(len(x_test))]
-
+ssim_values = [ssim(x_test[i].reshape(28, 28), decoded_imgs[i].reshape(28, 28), data_range=1.0) for i in
+               range(len(x_test))]
 # Boîte à moustache pour les SSIM
 plt.boxplot(ssim_values)
 plt.title('Distribution des SSIM')
