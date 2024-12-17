@@ -100,7 +100,7 @@ plt.show()
 mse_values = [mse(x_test[i], decoded_imgs[i]) for i in range(len(x_test))]
 ssim_values = [ssim(x_test[i].reshape(28, 28), decoded_imgs[i].reshape(28, 28), data_range=1.0) for i in
                range(len(x_test))]
-# Boîte à moustache pour les SSIM
+# BoxPlot pour les SSIM
 plt.boxplot(ssim_values)
 plt.title('Distribution des SSIM')
 plt.show()
@@ -149,7 +149,7 @@ plt.show()
 decoded_imgs = autoencoder.predict(x_test)
 
 # Visualisation des images originales et reconstruites
-n = 10  # Nombre d'images à afficher
+n = 10
 plt.figure(figsize=(20, 4))
 for i in range(n):
     # Images originales
@@ -174,7 +174,7 @@ for i in range(len(x_test)):
     reconstructed = decoded_imgs[i].reshape(28, 28)
 
     mse_values.append(mse(original, reconstructed))
-    ssim_values.append(ssim(original, reconstructed))
+    ssim_values.append(ssim(original, reconstructed, data_range=1.0))
 
 # Affichage des résultats
 print("MSE moyen :", np.mean(mse_values))
