@@ -180,9 +180,6 @@ for i in range(len(x_test)):
 print("MSE moyen :", np.mean(mse_values))
 print("SSIM moyen :", np.mean(ssim_values))
 
-# Projection des images encodées dans l'espace latent
-encoded_imgs = encoder.predict(x_test)
-
 # Réduction en 2D avec t-SNE
 tsne = sklearn.manifold.TSNE(n_components=2, random_state=42)
 reduced_latent = tsne.fit_transform(encoded_imgs)
