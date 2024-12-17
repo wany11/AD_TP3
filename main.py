@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import keras
+import sklearn.manifold
 from keras import layers
 from skimage.metrics import structural_similarity as ssim
 from sklearn.metrics import mean_squared_error as mse
@@ -142,4 +143,53 @@ plt.plot(range(nepochs), loss_deep, 'bo', label='Training loss (Deep)')
 plt.plot(range(nepochs), val_loss_deep, 'b', label='Validation loss (Deep)')
 plt.title('Losses (Deep Autoencoder)')
 plt.legend()
+plt.show()
+
+# Reconstruction des images
+decoded_imgs = autoencoder.predict(x_test)
+
+# Visualisation des images originales et reconstruites
+n = 10  # Nombre d'images à afficher
+plt.figure(figsize=(20, 4))
+for i in range(n):
+    # Images originales
+    ax = plt.subplot(2, n, i + 1)
+    plt.imshow(x_test[i].reshape(28, 28), cmap='gray')
+    plt.title("Original")
+    ax.axis('off')
+
+    # Images reconstruites
+    ax = plt.subplot(2, n, i + 1 + n)
+    plt.imshow(decoded_imgs[i].reshape(28, 28), cmap='gray')
+    plt.title("Reconstruit")
+    ax.axis('off')
+
+plt.show()
+
+mse_values = []
+ssim_values = []
+
+for i in range(len(x_test)):
+    original = x_test[i].reshape(28, 28)
+    reconstructed = decoded_imgs[i].reshape(28, 28)
+
+    mse_values.append(mse(original, reconstructed))
+    ssim_values.append(ssim(original, reconstructed))
+
+# Affichage des résultats
+print("MSE moyen :", np.mean(mse_values))
+print("SSIM moyen :", np.mean(ssim_values))
+
+# Projection des images encodées dans l'espace latent
+encoded_imgs = encoder.predict(x_test)
+
+# Réduction en 2D avec t-SNE
+tsne = sklearn.manifold.TSNE(n_components=2, random_state=42)
+reduced_latent = tsne.fit_transform(encoded_imgs)
+
+# Visualisation
+plt.figure(figsize=(8, 8))
+plt.scatter(reduced_latent[:, 0], reduced_latent[:, 1], c=y_test, cmap='tab10', s=10)
+plt.colorbar()
+plt.title("Visualisation de l'espace latent")
 plt.show()
